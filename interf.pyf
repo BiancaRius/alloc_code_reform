@@ -1,0 +1,129 @@
+!    -*- f90 -*-
+! Note: the context of this file is case sensitive.
+
+python module module_006 ! in 
+    interface  ! in :module_006
+        module types ! in :module_006:constants.f90
+            integer, public,parameter,optional :: l_1=2
+            integer, public,parameter,optional :: i_2=2
+            integer, public,parameter,optional :: i_4=4
+            integer, public,parameter,optional :: r_4=4
+            integer, public,parameter,optional :: r_8=8
+        end module types
+        module constants ! in :module_006:constants.f90
+            use types
+            real(kind=8), public,parameter,optional :: klatosa=6000.0
+            real(kind=8), public,parameter,optional :: ltor=0.7730258755234766
+            real(kind=8), public,parameter,optional :: k_allom1=100.0
+            real(kind=8), public,parameter,optional :: k_allom2=36
+            real(kind=8), public,parameter,optional :: k_allom3=0.22
+            real(kind=8), public,parameter,optional :: tol=1e-07
+            real(kind=8), public,parameter,optional :: pi=3.1415926536
+            real(kind=8), public,parameter,optional :: reinickerp=1.6
+            real(kind=8), public,parameter,optional :: nseg=20
+            real(kind=8), public,parameter,optional :: xacc=0.1
+            real(kind=8), public,parameter,optional :: yacc=1e-10
+        end module constants
+        module traits ! in :module_006:constants.f90
+            use types
+            real(kind=8), public,parameter,optional :: sla=0.023
+            real(kind=8), public,parameter,optional :: dwood=0.74*1.d6
+            real(kind=8), public,parameter,optional :: leaf_turnover=0.5
+            real(kind=8), public,parameter,optional :: root_turnover=0.5
+            real(kind=8), public,parameter,optional :: sap_turnover=0.05
+            real(kind=8), public,parameter,optional :: heart_turnover=0.03333333333333333
+        end module traits
+        module allocation ! in :module_006:allocation_reform_bia.f90
+            use constants
+            use types
+            use traits
+            subroutine alloc(leaf_in,root_in,sap_in,heart_in,bminc_in,dens_in,leaf_out,root_out,sap_out,heart_out) ! in :module_006:allocation_reform_bia.f90:allocation
+                real(kind=8) intent(in) :: leaf_in
+                real(kind=8) intent(in) :: root_in
+                real(kind=8) intent(in) :: sap_in
+                real(kind=8) intent(in) :: heart_in
+                real(kind=8) intent(in) :: bminc_in
+                real(kind=8) intent(in) :: dens_in
+                real(kind=8) intent(out) :: leaf_out
+                real(kind=8) intent(out) :: root_out
+                real(kind=8) intent(out) :: sap_out
+                real(kind=8) intent(out) :: heart_out
+            end subroutine alloc
+            function height_calc(wood_in_ind) result (height) ! in :module_006:allocation_reform_bia.f90:allocation
+                real(kind=8) intent(in) :: wood_in_ind
+                real(kind=8) :: height
+            end function height_calc
+            function leaf_req_calc(sap_in_ind,height) result (leaf_req) ! in :module_006:allocation_reform_bia.f90:allocation
+                real(kind=8) intent(in) :: sap_in_ind
+                real(kind=8) intent(in) :: height
+                real(kind=8) :: leaf_req
+            end function leaf_req_calc
+            function leaf_inc_min_calc(leaf_req,leaf_in_ind) result (leaf_inc_min) ! in :module_006:allocation_reform_bia.f90:allocation
+                real(kind=8) intent(in) :: leaf_req
+                real(kind=8) intent(in) :: leaf_in_ind
+                real(kind=8) :: leaf_inc_min
+            end function leaf_inc_min_calc
+            function root_inc_min_calc(leaf_req,root_in_ind) result (root_inc_min) ! in :module_006:allocation_reform_bia.f90:allocation
+                real(kind=8) intent(in) :: leaf_req
+                real(kind=8) intent(in) :: root_in_ind
+                real(kind=8) :: root_inc_min
+            end function root_inc_min_calc
+            subroutine normal_alloc(leaf_inc_min,leaf_in_ind,root_in_ind,bminc_in_ind,sap_in_ind,heart_in_ind,leaf_inc_alloc,root_inc_alloc,sap_inc_alloc) ! in :module_006:allocation_reform_bia.f90:allocation
+                real(kind=8) intent(in) :: leaf_inc_min
+                real(kind=8) intent(in) :: leaf_in_ind
+                real(kind=8) intent(in) :: root_in_ind
+                real(kind=8) intent(in) :: bminc_in_ind
+                real(kind=8) intent(in) :: sap_in_ind
+                real(kind=8) intent(in) :: heart_in_ind
+                real(kind=8) intent(out) :: leaf_inc_alloc
+                real(kind=8) intent(out) :: root_inc_alloc
+                real(kind=8) intent(out) :: sap_inc_alloc
+            end subroutine normal_alloc
+            function root_bisec_calc(leaf_in_ind,sap_in_ind,heart_in_ind,root_in_ind,bminc_in_ind,x) result (fx1) ! in :module_006:allocation_reform_bia.f90:allocation
+                real(kind=8) intent(in) :: leaf_in_ind
+                real(kind=8) intent(in) :: sap_in_ind
+                real(kind=8) intent(in) :: heart_in_ind
+                real(kind=8) intent(in) :: root_in_ind
+                real(kind=8) intent(in) :: bminc_in_ind
+                real(kind=8) intent(in) :: x
+                real(kind=8) :: fx1
+            end function root_bisec_calc
+            subroutine positive_leaf_inc_min(leaf_in_ind,sap_in_ind,heart_in_ind,root_in_ind,bminc_in_ind,dx2,x1_aux,x2_aux,leaf_inc_alloc) ! in :module_006:allocation_reform_bia.f90:allocation
+                real(kind=8) intent(in) :: leaf_in_ind
+                real(kind=8) intent(in) :: sap_in_ind
+                real(kind=8) intent(in) :: heart_in_ind
+                real(kind=8) intent(in) :: root_in_ind
+                real(kind=8) intent(in) :: bminc_in_ind
+                real(kind=8) intent(in) :: dx2
+                real(kind=8) intent(in) :: x1_aux
+                real(kind=8) intent(in) :: x2_aux
+                real(kind=8) intent(out) :: leaf_inc_alloc
+            end subroutine positive_leaf_inc_min
+            subroutine abnormal_alloc(bminc_in_ind,leaf_in_ind,root_in_ind,sap_in_ind,heart_in_ind,height,leaf_inc_alloc,root_inc_alloc,sap_inc_alloc,heart_inc_alloc) ! in :module_006:allocation_reform_bia.f90:allocation
+                real(kind=8) intent(in) :: bminc_in_ind
+                real(kind=8) intent(in) :: leaf_in_ind
+                real(kind=8) intent(in) :: root_in_ind
+                real(kind=8) intent(in) :: sap_in_ind
+                real(kind=8) intent(in) :: heart_in_ind
+                real(kind=8) intent(in) :: height
+                real(kind=8) intent(out) :: leaf_inc_alloc
+                real(kind=8) intent(out) :: root_inc_alloc
+                real(kind=8) intent(out) :: sap_inc_alloc
+                real(kind=8) intent(out) :: heart_inc_alloc
+            end subroutine abnormal_alloc
+            subroutine mortality_turnover(leaf_in_ind,root_in_ind,sap_in_ind,heart_in_ind,leaf_turn,root_turn,sap_turn,heart_turn) ! in :module_006:allocation_reform_bia.f90:allocation
+                real(kind=8) intent(in) :: leaf_in_ind
+                real(kind=8) intent(in) :: root_in_ind
+                real(kind=8) intent(in) :: sap_in_ind
+                real(kind=8) intent(in) :: heart_in_ind
+                real(kind=8) intent(out) :: leaf_turn
+                real(kind=8) intent(out) :: root_turn
+                real(kind=8) intent(out) :: sap_turn
+                real(kind=8) intent(out) :: heart_turn
+            end subroutine mortality_turnover
+        end module allocation
+    end interface 
+end python module module_006
+
+! This file was auto-generated with f2py (version:2).
+! See http://cens.ioc.ee/projects/f2py2e/
