@@ -12,14 +12,42 @@ public :: alloc,& !(s) calculates carbon pools output from NPP and carbon from p
           height_calc,& !(f)calculates height
           leaf_req_calc,& !(f)leaf mass requeriment to satisfy allometry
           leaf_inc_min_calc,& !(f) minimum leaf increment to satisfy allocation equations
-          root_inc_min_calc, &
-          normal_alloc, &
-          abnormal_alloc,&
-          root_bisec_calc,&
+          root_inc_min_calc, & !(f) minimum root increment to satisfy allocation equations
+          normal_alloc, & !(f)regular allocation process
+          abnormal_alloc,& !abnormal allocation
+          root_bisec_calc,& !solves bisection method for normal allocation
           positive_leaf_inc_min,&
-          mortality_turnover
+          mortality_turnover !(s) accounts for mortality through turnover
 
 contains
+
+    !if NPP .gt. 0 
+        !if leaf & root requirement .gt. 0
+            !if NPP .gt. leaf + root requirement
+                !if minimum nutrients for allocation
+                    !call allocation            
+                !else
+                    !!call storage_accumulation (non allocated NPP goes to storage)
+                    
+            !else
+                !call reallocation
+        !else
+            !call storage_accumulation (non allocated NPP goes to storage)
+    !else
+        !call reallocation 
+
+    !endif
+
+
+    !!!!!inside reallocation!!!!
+
+    !if Storage + NPP .lt. leaf + root requirement .and. nutrients .lt. minimumrequirement
+        !call storage_accumulation (non allocated NPP goes to storage)
+    !else
+        !continue to the program
+
+    !endif
+
 
     subroutine alloc(leaf_in, root_in, sap_in, heart_in, bminc_in, dens_in,&
         leaf_out, root_out, sap_out, heart_out)
