@@ -6,7 +6,7 @@ program program2
     implicit none
     integer(i_4) :: i
     real(r_8) :: leaf_in  = 1.5 !kgC/m2 initial C leaf input 
-    real(r_8) :: root_in  = 1.5 !kgC/m2 initial C root input
+    real(r_8) :: root_in  = 1.2 !kgC/m2 initial C root input
     real(r_8) :: sap_in = 1000.
     real(r_8) :: heart_in = 500.
     real(r_8) :: storage_in = 50.
@@ -27,7 +27,7 @@ program program2
     ! sap_in   = 87.!0.05*wood_in
     ! heart_in = 324.!0.95*wood_in
 
-    do i = 1, 2
+    do i = 1, 20
       print*, ' '
       print*,'STEP', i
       call alloc(leaf_in, root_in, sap_in, heart_in, storage_in, bminc_in,dens_in,&
@@ -41,11 +41,13 @@ program program2
       
       
         ! ! print*, 'bminc ======', bminc_in/dens_in, i
-        ! PRINT*, '____________________________________'
-        ! print*,'leaf updt===========', leaf_in,  i
-        ! print*,'root updt===========', root_in,  i
-        ! print*,'sap  updt===========', sap_in,  i
-        ! PRINT*, '____________________________________'
+        PRINT*, '____________________________________'
+        print*,'leaf updt===========', leaf_in,  i
+        print*,'root updt===========', root_in,  i
+        print*,'sap  updt===========', sap_in,  i
+        print*,'storage  updt===========', storage_in,  i
+
+        PRINT*, '____________________________________'
 
     enddo
         
