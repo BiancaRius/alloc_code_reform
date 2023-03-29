@@ -27,7 +27,7 @@ program program2
     ! sap_in   = 87.!0.05*wood_in
     ! heart_in = 324.!0.95*wood_in
 
-    do i = 1, 3
+    do i = 1, 30
       print*, ' '
       print*,'STEP', i
       call alloc(leaf_in, root_in, sap_in, heart_in, storage_in, bminc_in,dens_in,&

@@ -22,34 +22,6 @@ public :: alloc,& !(s) calculates carbon pools output from NPP and carbon from p
 
 contains
 
-    !if NPP .gt. 0 
-        !if leaf & root requirement .gt. 0
-            !if NPP .gt. leaf + root requirement
-                !if minimum nutrients for allocation
-                    !call allocation            
-                !else
-                    !!call storage_accumulation (non allocated NPP goes to storage)
-                    
-            !else
-                !call reallocation
-        !else
-            !call storage_accumulation (non allocated NPP goes to storage)
-    !else
-        !call reallocation 
-
-    !endif
-
-
-    !!!!!inside reallocation!!!!
-
-    !if Storage + NPP .lt. leaf + root requirement .and. nutrients .lt. minimumrequirement
-        !call storage_accumulation (non allocated NPP goes to storage)
-    !else
-        !continue to the program
-
-    !endif
-
-
     subroutine alloc(leaf_in, root_in, sap_in, heart_in, storage_in, bminc_in, dens_in,&
         leaf_out, root_out, sap_out, heart_out, storage_out)
 
@@ -79,11 +51,11 @@ contains
         !INTERNAL VARIABLES
         real(r_8) :: wood_in_ind !(gC) total wood - sum of heart and sap
 
-        !variable for bisec loop
-        integer(i_4) :: x
-        real(r_8) :: tmp
-        real(r_8) :: tmp2
-        real(r_8) :: sens
+        ! !variable for bisec loop
+        ! integer(i_4) :: x
+        ! real(r_8) :: tmp
+        ! real(r_8) :: tmp2
+        ! real(r_8) :: sens
 
         !carbon (gC) in compartments considering the density (ind/m2)
         real(r_8) :: leaf_in_ind
@@ -91,7 +63,6 @@ contains
         real(r_8) :: sap_in_ind
         real(r_8) :: heart_in_ind
         real(r_8) :: storage_in_ind
-        real(r_8) :: realloc !provisory variable 
 
 
         real(r_8) :: bminc_in_ind
@@ -110,8 +81,8 @@ contains
         real(r_8) :: heart_inc_alloc
         real(r_8) :: storage_inc_alloc
 
-        !C available (NPP + storage)
-        real(r_8) :: c_available
+        !C deficit (when NPP < 0)
+        real(r_8) :: c_deficit
 
         !variable update that goes to turnover mortality (compartment_in_ind + compartiment_inc_alloc)
         real(r_8) :: leaf_updt
@@ -155,7 +126,7 @@ contains
         heart_inc_alloc = 0.0D0
         storage_inc_alloc = 0.0D0
 
-        c_available = 0.0D0
+        c_deficit = 0.0D0
 
         leaf_updt = 0.0D0
         root_updt = 0.0D0
@@ -211,14 +182,15 @@ contains
 
                     print*, 'NPP > sum of root and leaf inc min'
                     
-                    !if minimum nutrients
+                    !if minimum nutrients then
 
                     call normal_alloc(leaf_inc_min, leaf_in_ind, root_in_ind, bminc_in_ind,&
                     sap_in_ind, heart_in_ind, leaf_inc_alloc, root_inc_alloc, sap_inc_alloc)
                    
                     !else
                         
-                        !storage = storage + bminc    
+                        !storage = storage + bminc
+
                     !endif
 
                 else
@@ -257,9 +229,7 @@ contains
                 print*, 'NPP < 0' !se a NPP for negativa, então o valor dela é descontado do storage
 
                 if ( (storage_in_ind + bminc_in_ind).ge.(root_inc_min + leaf_inc_min) ) then !!AND NUTRIENTS
-                        !call reallocation(storage_in_ind, realloc)
 
-                        !storage_inc_alloc = bminc - (inc_leaf + inc_root)
                     print*, 'reallocation: use storage and discount minimum leaf inc and minimum root inc'
 
                     call reallocation(storage_in_ind, bminc_in_ind, leaf_inc_min, root_inc_min,&
@@ -269,7 +239,19 @@ contains
                 
                 else
                     
-                    print*, 'see what happens in CAETE now'
+                    c_deficit = abs(bminc_in_ind)
+
+                    leaf_inc_alloc = - (c_deficit*0.25)
+
+                    root_inc_alloc = - (c_deficit*0.25)
+
+                    sap_inc_alloc = - (c_deficit*0.25)
+
+                    heart_inc_alloc = abs(sap_inc_alloc)
+
+                    storage_inc_alloc = 0.0D0
+
+                    print*, 'DEFICIT',c_deficit,leaf_inc_alloc,root_inc_alloc,sap_inc_alloc,heart_inc_alloc
                      
                 end if
                     
@@ -286,7 +268,21 @@ contains
                 
             else 
 
-                print*, 'NPP < 0 se what happens in the model'
+                print*, 'NPP < 0 -> discount the deficit equally between alive tissues'
+
+                c_deficit = abs(bminc_in_ind)
+
+                leaf_inc_alloc = - (c_deficit*0.25)
+
+                root_inc_alloc = - (c_deficit*0.25)
+
+                sap_inc_alloc = - (c_deficit*0.25)
+
+                heart_inc_alloc = abs(sap_inc_alloc)
+
+                storage_inc_alloc = 0.0D0
+
+                print*, 'DEFICIT2222',c_deficit,leaf_inc_alloc,root_inc_alloc,sap_inc_alloc,heart_inc_alloc
 
             end if    
             
@@ -303,7 +299,6 @@ contains
         sap_updt   = sap_in_ind + sap_inc_alloc
         heart_updt = heart_in_ind + heart_inc_alloc
         storage_updt = storage_in_ind + storage_inc_alloc
-        print*, 'storage updt', storage_updt, storage_in_ind, bminc_in_ind, storage_inc_alloc
 
         !mortality through turnover
         call mortality_turnover(leaf_in_ind, root_in_ind, sap_in_ind, heart_in_ind,storage_in_ind,&
