@@ -158,16 +158,12 @@ contains
 
         !minimum increment to leaf
         leaf_inc_min = leaf_inc_min_calc(leaf_req, leaf_in_ind)
-        print*, 'leaf_inc_min', leaf_inc_min
 
         !minimum increment to root
         root_inc_min = root_inc_min_calc(leaf_req, root_in_ind)
-        print*, 'root_inc_min', root_inc_min
-
-        print*, 'sum leaf and root min', leaf_inc_min + root_inc_min
 
 
-    !!conditions for allocation!!!
+    !!conditions for allocation!!! see fluxogram in https://lucid.app/lucidchart/74db0739-29ee-4894-9ecc-42b2cf3d0ae5/edit?invitationId=inv_d3a94efe-b397-45df-9af2-9467d19bee97&page=0_0#
 
 
         if (leaf_inc_min.gt.0.0D0.and.root_inc_min.gt.0.0D0) then
@@ -226,8 +222,7 @@ contains
 
                     call reallocation(storage_in_ind, bminc_in_ind, leaf_inc_min, root_inc_min,&
                     leaf_inc_alloc, root_inc_alloc, sap_inc_alloc, heart_inc_alloc, storage_inc_alloc)
-
-                
+             
                 else
                     
                     print*, 'C deficit (NPP < GPP - resp)'
@@ -277,8 +272,6 @@ contains
 
             end if    
             
-           
-
         endif
     
     !!!end of conditions for allocation!!!!
