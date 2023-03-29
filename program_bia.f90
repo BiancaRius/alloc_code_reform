@@ -9,8 +9,8 @@ program program2
     real(r_8) :: root_in  = 1.2 !kgC/m2 initial C root input
     real(r_8) :: sap_in = 1000.
     real(r_8) :: heart_in = 500.
-    real(r_8) :: storage_in = 50.
-    real(r_8) :: bminc_in = 3.5!0.0004 !carbon (NPP) available to be allocated
+    real(r_8) :: storage_in = 5.
+    real(r_8) :: bminc_in = 1.5!0.0004 !carbon (NPP) available to be allocated
                                 !basically NPPt - NPPt-1. NPP accumulated in the year/month/day
                                 !gc/ind/time_step
 
@@ -27,7 +27,7 @@ program program2
     ! sap_in   = 87.!0.05*wood_in
     ! heart_in = 324.!0.95*wood_in
 
-    do i = 1, 20
+    do i = 1, 3
       print*, ' '
       print*,'STEP', i
       call alloc(leaf_in, root_in, sap_in, heart_in, storage_in, bminc_in,dens_in,&

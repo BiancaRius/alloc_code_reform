@@ -14,7 +14,6 @@ public :: alloc,& !(s) calculates carbon pools output from NPP and carbon from p
           leaf_inc_min_calc,& !(f) minimum leaf increment to satisfy allocation equations
           root_inc_min_calc, & !(f) minimum root increment to satisfy allocation equations
           normal_alloc, & !(f)regular allocation process
-          abnormal_alloc,& !abnormal allocation
           root_bisec_calc,& !solves bisection method for normal allocation
           positive_leaf_inc_min,&
           mortality_turnover,& !(s) accounts for mortality through turnover
@@ -246,7 +245,7 @@ contains
 
                     else
 
-                        print*, 'non used npp goes to storage'
+                        print*, '******* storage + npp < inc min non used npp goes to storage******************'
                         storage_inc_alloc = bminc_in_ind 
 
                     end if
@@ -254,8 +253,6 @@ contains
                 end if
 
             else
-                ! call abnormal_alloc(bminc_in_ind, leaf_in_ind, root_in_ind, sap_in_ind, heart_in_ind,height,&
-                ! leaf_inc_alloc, root_inc_alloc, sap_inc_alloc,heart_inc_alloc)
                 
                 print*, 'NPP < 0' !se a NPP for negativa, então o valor dela é descontado do storage
 
@@ -263,13 +260,10 @@ contains
                         !call reallocation(storage_in_ind, realloc)
 
                         !storage_inc_alloc = bminc - (inc_leaf + inc_root)
-                    print*, 'reallocation'
+                    print*, 'reallocation: use storage and discount minimum leaf inc and minimum root inc'
 
                     call reallocation(storage_in_ind, bminc_in_ind, leaf_inc_min, root_inc_min,&
                     leaf_inc_alloc, root_inc_alloc, sap_inc_alloc, heart_inc_alloc, storage_inc_alloc)
-
-                    ! call reallocation(bminc_in_ind, leaf_in_ind, root_in_ind, sap_in_ind, heart_in_ind, height, storage_in_ind,&
-                    ! leaf_inc_alloc, root_inc_alloc, sap_inc_alloc, heart_inc_alloc, storage_inc_alloc)
 
                     print*, 'use storage and discount leaf inc and root inc'
                 
@@ -303,31 +297,13 @@ contains
     !!!end of conditions for allocation!!!!
 
        
-        ! if (root_inc_min .gt. 0.0D0 .and. leaf_inc_min .gt. 0.0D0 .and. &
-        !         & (root_inc_min + leaf_inc_min) .lt. bminc_in_ind) then
-        !     ! print*, 'normal'
-            
-        !     call normal_alloc(leaf_inc_min, leaf_in_ind, root_in_ind, bminc_in_ind,&
-        !             sap_in_ind, heart_in_ind, leaf_inc_alloc, root_inc_alloc, sap_inc_alloc)
-
-        !             ! print*, 'leaf inc alloc==', leaf_inc_alloc
-        ! else
-
-        !     ! print*, ' abnormal'
-        !     call abnormal_alloc(bminc_in_ind, leaf_in_ind, root_in_ind, sap_in_ind, heart_in_ind,height,&
-        !     leaf_inc_alloc, root_inc_alloc, sap_inc_alloc,heart_inc_alloc)
-            
-           
-
-        ! endif
-
-         !Update variable and add Increment to C compartments 
+        !Update variable and add Increment to C compartments 
         leaf_updt  = leaf_in_ind + leaf_inc_alloc
         root_updt  = root_in_ind + root_inc_alloc
         sap_updt   = sap_in_ind + sap_inc_alloc
         heart_updt = heart_in_ind + heart_inc_alloc
         storage_updt = storage_in_ind + storage_inc_alloc
-        print*, 'storage updt', storage_updt, storage_in_ind, bminc_in_ind
+        print*, 'storage updt', storage_updt, storage_in_ind, bminc_in_ind, storage_inc_alloc
 
         !mortality through turnover
         call mortality_turnover(leaf_in_ind, root_in_ind, sap_in_ind, heart_in_ind,storage_in_ind,&
@@ -654,67 +630,6 @@ contains
     
     end subroutine
 
-    subroutine abnormal_alloc(bminc_in_ind, leaf_in_ind, root_in_ind, sap_in_ind,heart_in_ind, height,&
-        leaf_inc_alloc, root_inc_alloc, sap_inc_alloc, heart_inc_alloc)
-        
-        
-        real(r_8), intent(in) :: leaf_in_ind 
-        real(r_8), intent(in) :: sap_in_ind
-        real(r_8), intent(in) :: root_in_ind
-        real(r_8), intent(in) :: heart_in_ind  
-        real(r_8), intent(in) :: bminc_in_ind
-        real(r_8), intent(in) :: height
-
-
-        real(r_8), intent(out) :: leaf_inc_alloc
-        real(r_8), intent(out) :: root_inc_alloc
-        real(r_8), intent(out) :: sap_inc_alloc
-        real(r_8), intent(out) :: heart_inc_alloc
-
-
-        !initialize variables
-        leaf_inc_alloc = 0.0D0
-        root_inc_alloc = 0.0D0
-        sap_inc_alloc = 0.0D0
-        heart_inc_alloc = 0.0D0
-
-        leaf_inc_alloc = ( bminc_in_ind - leaf_in_ind / ltor + root_in_ind )/ (1. + 1./ ltor)
-
-
-        if (leaf_inc_alloc.gt.0.) then
-        
-            !Positive allocation to leafmass
-            
-            root_inc_alloc = bminc_in_ind - leaf_inc_alloc  !eqn (31)
-
-
-           !Add killed roots (if any) to below-ground litter - TO BE DONE
-
-            if(root_inc_alloc.lt.0.)then
-                
-                leaf_inc_alloc = bminc_in_ind
-
-                root_inc_alloc = (leaf_in_ind + leaf_inc_alloc) / ltor - root_in_ind
-                ! print*, 'ATTENTION PLEASE!!!!!!!!!!!'
-            endif 
-        else 
-
-            !Negative allocation to leaf mass
-
-            root_inc_alloc = bminc_in_ind
-            
-            leaf_inc_alloc = (root_in_ind + root_inc_alloc) * ltor - leaf_in_ind  !from eqn (9)
-
-            ! print*, 'ATTENTION PLEASE!!!!!!!!!!!'
-
-        endif
-
-        ! !Calculate sminc_ind (must be negative)
-        sap_inc_alloc = ((leaf_in_ind + leaf_inc_alloc) * sla) / klatosa*dwood*height - sap_in_ind
-        ! print*, 'sap inc alloc mus be negative', sap_inc_alloc
-
-        heart_inc_alloc = heart_in_ind + abs(sap_inc_alloc)
-    end subroutine
 
     subroutine mortality_turnover (leaf_in_ind, root_in_ind, sap_in_ind, heart_in_ind,storage_in_ind,&
         leaf_turn, root_turn, sap_turn, heart_turn, storage_turn)
@@ -742,7 +657,7 @@ contains
 
         sap_turn = sap_in_ind*sap_turnover
 
-        storage_turn = storage_in_ind*(1/2) !provisory
+        storage_turn = storage_in_ind*0.2 !provisory
 
         !heartwood incorporates the dead tissue from sapwood
         heart_turn = (heart_in_ind*heart_turnover) + sap_turn
@@ -765,68 +680,6 @@ contains
         
     end subroutine
 
-    ! subroutine reallocation(bminc_in_ind, leaf_in_ind, root_in_ind, sap_in_ind,heart_in_ind, height,storage_in_ind,&
-    !     leaf_inc_alloc, root_inc_alloc, sap_inc_alloc, heart_inc_alloc,storage_inc_alloc)
-        
-        
-    !     real(r_8), intent(in) :: leaf_in_ind 
-    !     real(r_8), intent(in) :: sap_in_ind
-    !     real(r_8), intent(in) :: root_in_ind
-    !     real(r_8), intent(in) :: heart_in_ind
-    !     real(r_8), intent(in) :: storage_in_ind  
-    !     real(r_8), intent(in) :: bminc_in_ind
-    !     real(r_8), intent(in) :: height
-
-
-    !     real(r_8), intent(out) :: leaf_inc_alloc
-    !     real(r_8), intent(out) :: root_inc_alloc
-    !     real(r_8), intent(out) :: sap_inc_alloc
-    !     real(r_8), intent(out) :: heart_inc_alloc
-    !     real(r_8), intent(out) :: storage_inc_alloc
-
-    !     real(r_8) :: c_available
-
-    !     !initialize variables
-    !     leaf_inc_alloc = 0.0D0
-    !     root_inc_alloc = 0.0D0
-    !     sap_inc_alloc = 0.0D0
-    !     heart_inc_alloc = 0.0D0
-    !     storage_inc_alloc = 0.0D0
-    !     c_available = 0.0D0
-
-    !     leaf_inc_alloc = ( c_available - leaf_in_ind / ltor + root_in_ind )/ (1. + 1./ ltor)
-
-
-    !     if (leaf_inc_alloc.gt.0.) then
-        
-    !         !Positive allocation to leafmass
-            
-    !         root_inc_alloc = c_available - leaf_inc_alloc  !eqn (31)
-
-
-    !        !Add killed roots (if any) to below-ground litter - TO BE DONE
-
-    !         if(root_inc_alloc.lt.0.)then
-                
-    !             leaf_inc_alloc = c_available
-
-    !             root_inc_alloc = (leaf_in_ind + leaf_inc_alloc) / ltor - root_in_ind
-    !             ! print*, 'ATTENTION PLEASE!!!!!!!!!!!'
-    !         endif 
-    !     else 
-
-    !         !Negative allocation to leaf mass
-
-    !         root_inc_alloc = c_available
-            
-    !         leaf_inc_alloc = (root_in_ind + root_inc_alloc) * ltor - leaf_in_ind  !from eqn (9)
-
-    !         ! print*, 'ATTENTION PLEASE!!!!!!!!!!!'
-
-    !     endif
-
-    !     storage_inc_alloc = -(leaf_inc_alloc + root_inc_alloc)
-    ! end subroutine
 
     subroutine reallocation (storage_in_ind,bminc_in_ind, leaf_inc_min, root_inc_min,&
         leaf_inc_alloc, root_inc_alloc, sap_inc_alloc, heart_inc_alloc, storage_inc_alloc)
@@ -848,25 +701,22 @@ contains
         real(r_8), intent(out) :: storage_inc_alloc
 
         
-        !internal
-        real(r_8) :: c_available !C from NPP + storage
-
         !initialize variables
         leaf_inc_alloc = 0.0D0
         root_inc_alloc = 0.0D0
         sap_inc_alloc = 0.0D0
         heart_inc_alloc = 0.0D0
         storage_inc_alloc = 0.0D0
-        c_available = 0.0D0
-
-
-        c_available = storage_in_ind + bminc_in_ind
 
         leaf_inc_alloc = leaf_inc_min
 
         root_inc_alloc = root_inc_min
 
-        storage_inc_alloc = c_available - (leaf_inc_alloc + root_inc_alloc)
+        storage_inc_alloc = bminc_in_ind - (leaf_inc_alloc + root_inc_alloc)
+
+        print*, 'storage_inc_alloc', storage_inc_alloc
+        print*, 'bminc_in_ind', bminc_in_ind
+        print*, 'sum leaf root inc min', leaf_inc_alloc + root_inc_alloc
         
     end subroutine
     
