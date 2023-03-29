@@ -194,30 +194,22 @@ contains
                     !endif
 
                 else
-                    ! call abnormal_alloc(bminc_in_ind, leaf_in_ind, root_in_ind, sap_in_ind, heart_in_ind,height,&
-                    ! leaf_inc_alloc, root_inc_alloc, sap_inc_alloc,heart_inc_alloc)
-                    
+
                     print*, 'NPP < sum of root and leaf inc min'
 
                     if ( (storage_in_ind + bminc_in_ind).ge.(root_inc_min + leaf_inc_min) ) then !!AND NUTRIENTS
-                        !call reallocation(storage_in_ind, realloc)
-                       !storage_inc_alloc = bminc - (inc_leaf + inc_root)
+                                
+                        print*, 'reallocation: use storage and discount minimum leaf inc and minimum root inc'
 
-                        print*, 'reallocation'
-
-                        
-                        
                         call reallocation(storage_in_ind, bminc_in_ind, leaf_inc_min, root_inc_min,&
                         leaf_inc_alloc, root_inc_alloc, sap_inc_alloc, heart_inc_alloc, storage_inc_alloc)
-
-                        ! call reallocation(bminc_in_ind, leaf_in_ind, root_in_ind, sap_in_ind, heart_in_ind, height, storage_in_ind,&
-                        ! leaf_inc_alloc, root_inc_alloc, sap_inc_alloc, heart_inc_alloc, storage_inc_alloc)
 
                         print*, 'use storage and discount leaf inc and root inc'
 
                     else
 
-                        print*, '******* storage + npp < inc min non used npp goes to storage******************'
+                        print*, 'storage + npp < inc min non used npp goes to storage'
+                        
                         storage_inc_alloc = bminc_in_ind 
 
                     end if
@@ -226,7 +218,7 @@ contains
 
             else
                 
-                print*, 'NPP < 0' !se a NPP for negativa, então o valor dela é descontado do storage
+                print*, 'NPP < 0 but storage + NPP > minimum requirement' 
 
                 if ( (storage_in_ind + bminc_in_ind).ge.(root_inc_min + leaf_inc_min) ) then !!AND NUTRIENTS
 
@@ -235,23 +227,23 @@ contains
                     call reallocation(storage_in_ind, bminc_in_ind, leaf_inc_min, root_inc_min,&
                     leaf_inc_alloc, root_inc_alloc, sap_inc_alloc, heart_inc_alloc, storage_inc_alloc)
 
-                    print*, 'use storage and discount leaf inc and root inc'
                 
                 else
                     
+                    print*, 'C deficit (NPP < GPP - resp)'
+
                     c_deficit = abs(bminc_in_ind)
 
-                    leaf_inc_alloc = - (c_deficit*0.25)
+                    leaf_inc_alloc = - (c_deficit*0.33)
 
-                    root_inc_alloc = - (c_deficit*0.25)
+                    root_inc_alloc = - (c_deficit*0.33)
 
-                    sap_inc_alloc = - (c_deficit*0.25)
+                    sap_inc_alloc = - (c_deficit*0.33)
 
+                    !when sap dies it turns into heartwood
                     heart_inc_alloc = abs(sap_inc_alloc)
 
                     storage_inc_alloc = 0.0D0
-
-                    print*, 'DEFICIT',c_deficit,leaf_inc_alloc,root_inc_alloc,sap_inc_alloc,heart_inc_alloc
                      
                 end if
                     
@@ -278,11 +270,10 @@ contains
 
                 sap_inc_alloc = - (c_deficit*0.25)
 
+                !when sap dies it turns into heartwood
                 heart_inc_alloc = abs(sap_inc_alloc)
 
                 storage_inc_alloc = 0.0D0
-
-                print*, 'DEFICIT2222',c_deficit,leaf_inc_alloc,root_inc_alloc,sap_inc_alloc,heart_inc_alloc
 
             end if    
             
