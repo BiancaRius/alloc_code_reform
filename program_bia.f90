@@ -7,7 +7,7 @@ program program2
     integer(i_4) :: i
     real(r_8) :: leaf_in  = 1.5 !kgC/m2 initial C leaf input 
     real(r_8) :: root_in  = 1.2 !kgC/m2 initial C root input
-    real(r_8) :: sap_in = 1000.
+    real(r_8) :: sap_in = 100.
     real(r_8) :: heart_in = 500.
     real(r_8) :: storage_in = 5.
     real(r_8) :: bminc_in = 1.5!0.0004 !carbon (NPP) available to be allocated
