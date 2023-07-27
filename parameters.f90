@@ -43,7 +43,7 @@ module traits
     real(r_8), parameter, public :: root_turnover = 1./2 !Sitch et al 2003
     real(r_8), parameter, public :: sap_turnover = 1./20 !0.05 !Sitch et al 2003
     !ATTENTION TO HEARt TURNOVER
-    real(r_8), parameter, public :: heart_turnover = 1./30.!1/50. !Sitch et al 2003
+    real(r_8), parameter, public :: heart_turnover = 1./100.!1/50. !Sitch et al 2003
 
 
 

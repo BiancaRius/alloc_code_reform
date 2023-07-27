@@ -152,16 +152,19 @@ contains
 
         ! call functions to logic
         height = height_calc(wood_in_ind)
+        print*, 'height', height
 
         !leaf requirement
         leaf_req = leaf_req_calc(sap_in_ind, height)
+        print*, 'leaf_req',leaf_req/1000
 
         !minimum increment to leaf
         leaf_inc_min = leaf_inc_min_calc(leaf_req, leaf_in_ind)
+        print*, 'leaf_inc_min', leaf_inc_min/1000
 
         !minimum increment to root
         root_inc_min = root_inc_min_calc(leaf_req, root_in_ind)
-
+        print*, 'root inc min',root_inc_min/1000
 
     !!conditions for allocation!!! see fluxogram in https://lucid.app/lucidchart/74db0739-29ee-4894-9ecc-42b2cf3d0ae5/edit?invitationId=inv_d3a94efe-b397-45df-9af2-9467d19bee97&page=0_0#
 
@@ -178,26 +181,20 @@ contains
 
                     print*, 'NPP > sum of root and leaf inc min'
                     
-                    !if minimum nutrients then
 
                     call normal_alloc(leaf_inc_min, leaf_in_ind, root_in_ind, bminc_in_ind,&
                     sap_in_ind, heart_in_ind, leaf_inc_alloc, root_inc_alloc, sap_inc_alloc)
                    
-                    !else
                         
-                        !storage = storage + bminc
-
-                    !endif
-
                 else
 
                     print*, 'NPP < sum of root and leaf inc min'
 
-                    if ( (storage_in_ind + bminc_in_ind).ge.(root_inc_min + leaf_inc_min) ) then !!AND NUTRIENTS
+                    if ( (storage_in_ind + bminc_in_ind).ge.(root_inc_min + leaf_inc_min) ) then 
                                 
                         print*, 'reallocation: use storage and discount minimum leaf inc and minimum root inc'
 
-                        call reallocation(storage_in_ind, bminc_in_ind, leaf_inc_min, root_inc_min,&
+                        call reallocation(bminc_in_ind, leaf_inc_min, root_inc_min,&
                         leaf_inc_alloc, root_inc_alloc, sap_inc_alloc, heart_inc_alloc, storage_inc_alloc)
 
                         print*, 'use storage and discount leaf inc and root inc'
@@ -220,7 +217,7 @@ contains
 
                     print*, 'reallocation: use storage and discount minimum leaf inc and minimum root inc'
 
-                    call reallocation(storage_in_ind, bminc_in_ind, leaf_inc_min, root_inc_min,&
+                    call reallocation(bminc_in_ind, leaf_inc_min, root_inc_min,&
                     leaf_inc_alloc, root_inc_alloc, sap_inc_alloc, heart_inc_alloc, storage_inc_alloc)
              
                 else
@@ -403,6 +400,8 @@ contains
         real(r_8) :: root_inc_min !gC -output- minimum root increment to satisfy allocation equations
 
         root_inc_min = leaf_req / ltor - root_in_ind
+
+        ! print*, leaf_req, ltor, root_in_ind
        
 
     end function root_inc_min_calc
@@ -460,9 +459,15 @@ contains
             call positive_leaf_inc_min(leaf_in_ind, sap_in_ind, heart_in_ind,&
             root_in_ind, bminc_in_ind, dx, x1, x2, leaf_inc_alloc)        
             
+            print*, 'leaf inc alloc', leaf_inc_alloc/1000
+
             root_inc_alloc = ((leaf_in_ind + leaf_inc_alloc) / ltor) - root_in_ind
 
+            print*, 'root inc alloc', root_inc_alloc/1000
+
             sap_inc_alloc = bminc_in_ind - leaf_inc_alloc - root_inc_alloc
+
+            print*, 'sap inc alloc', sap_inc_alloc/1000
 
         endif
 
@@ -660,14 +665,13 @@ contains
     end subroutine
 
 
-    subroutine reallocation (storage_in_ind,bminc_in_ind, leaf_inc_min, root_inc_min,&
+    subroutine reallocation (bminc_in_ind, leaf_inc_min, root_inc_min,&
         leaf_inc_alloc, root_inc_alloc, sap_inc_alloc, heart_inc_alloc, storage_inc_alloc)
         
         !here for reallocation we sum the C available from NPP and storage to reallocate (only for leaves and fine roots)
 
 
         !inputs
-        real(r_8), intent(in) :: storage_in_ind
         real(r_8), intent(in) :: leaf_inc_min
         real(r_8), intent(in) :: root_inc_min
         real(r_8), intent(in) :: bminc_in_ind
