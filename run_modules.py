@@ -2,13 +2,13 @@ import matplotlib.pyplot as plt
 import module_006 as my_module
 
 # Condições iniciais
-leaf_in = 0.01
-root_in = 0.01
-sap_in = 15.
-heart_in = 40.
+leaf_in = 0.4
+root_in = 0.8
+sap_in = 5.
+heart_in = 15.
 dens_in = 1.
-bminc_in = 0.8
-storage_in = 0.5
+bminc_in = 1.4
+storage_in = 5.5
 
 # Número de passos de tempo
 num_steps = 100
@@ -45,9 +45,9 @@ for step in range(num_steps):
 # Plotagem dos resultados
 plt.plot(leaf_results, label='Leaf')
 plt.plot(root_results, label='Root')
-plt.plot(sap_results, label='Sap')
-plt.plot(heart_results, label='Heart')
-plt.plot(storage_results, label='Storage')
+# plt.plot(sap_results, label='Sap')
+# plt.plot(heart_results, label='Heart')
+# plt.plot(storage_results, label='Storage')
 plt.legend()
 plt.xlabel('Time Step')
 plt.ylabel('Value')

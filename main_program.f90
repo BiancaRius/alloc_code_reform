@@ -14,7 +14,7 @@ program program2
     real(r_8) :: sap_in = 15.
     real(r_8) :: heart_in = 40.
     real(r_8) :: storage_in = 0.5
-    real(r_8) :: bminc_in = 0.8!0.0004 !carbon (NPP) available to be allocated
+    real(r_8) :: bminc_in = 0.8/365.242D0!0.0004 !carbon (NPP) available to be allocated
                                 !basically NPPt - NPPt-1. NPP accumulated in the year/month/day
                                 !gc/ind/time_step
 

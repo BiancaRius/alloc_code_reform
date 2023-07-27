@@ -27,7 +27,7 @@ python module module_006 ! in
         module traits ! in :module_006:parameters.f90
             use types
             real(kind=8), public,parameter,optional :: sla=0.023
-            real(kind=8), public,parameter,optional :: dwood=0.74*1.d6
+            real(kind=8), public,parameter,optional :: dwood=0.2*1.d6
             real(kind=8), public,parameter,optional :: leaf_turnover=0.5
             real(kind=8), public,parameter,optional :: root_turnover=0.5
             real(kind=8), public,parameter,optional :: sap_turnover=0.05
